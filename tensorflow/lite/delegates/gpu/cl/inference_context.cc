@@ -413,6 +413,12 @@ void InferenceContext::Merge() {
 void InferenceContext::GetUsages(
     const std::function<bool(const TensorDescriptor&)>& functor,
     std::map<ValueId, int2>* usages) {
+  for (ValueId in_id : input_ids_) {
+    const auto& desc = tensor_reserver_.Get(in_id).descriptor;
+    if (functor(desc)) {
+      AddUsage(in_id, 0, usages);
+    }
+  }
   for (int op_index = 0; op_index < nodes_.size(); ++op_index) {
     auto tensors = GetCLNodeTensors(nodes_[op_index]);
     for (auto& tensor : tensors) {
